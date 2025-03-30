@@ -7,42 +7,41 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 
 export default function TasksPage() {
-  // Initial tasks (would normally be fetched from API/backend)
   const [tasks, setTasks] = useState([
     {
       id: 1,
-      title: "Morning walk",
-      description: "20 minutes of outdoor activity",
-      completed: true,
-      xp: 50,
+      title: "Use Resuable Products",
+      description: "Use reusable bags, containers, and water bottles",
+      completed: false,
+      xp: 30, // saves ~50g plastic/day
     },
     {
       id: 2,
-      title: "Training session",
-      description: "Practice commands and tricks",
+      title: "Compost Organic Waste",
+      description: "Compost food scraps to reduce landfill waste",
       completed: false,
-      xp: 75,
+      xp: 35, // saves ~.4kg CO2e/day 
     },
     {
       id: 3,
-      title: "Playtime",
-      description: "Interactive toy play",
-      completed: true,
-      xp: 30,
+      title: "Save Energy at Home",
+      description: "Turn off electric based devices when not in use or not needed",
+      completed: false,
+      xp: 40, // saves ~0.3kg
     },
     {
       id: 4,
-      title: "Grooming",
-      description: "Brush coat and clean ears",
+      title: "Commute sustainably",
+      description: "Walk, bike, or use public transport instead of driving alone",
       completed: false,
-      xp: 40,
+      xp: 45, // saves ~8.8 kg CO2e/day
     },
     {
       id: 5,
-      title: "Evening walk",
-      description: "15 minutes before dinner",
+      title: "Eat plant-based meals",
+      description: "Have meals without meat or with less meat",
       completed: false,
-      xp: 45,
+      xp: 50, // saves ~6kg CO2e/day
     },
   ]);
 
