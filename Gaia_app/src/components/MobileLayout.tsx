@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { User, CheckSquare, Activity } from "lucide-react";
+import { User, CheckSquare, Activity, Feather } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const tabs = [
   {
-    name: "Avatar",
+    name: "Mirror",
     href: "/",
     icon: User,
   },
@@ -21,6 +21,11 @@ const tabs = [
     href: "/impact",
     icon: Activity,
   },
+  {
+    name: "Trace",
+    href: "/trace",
+    icon: Feather,
+  }
 ];
 
 export default function MobileLayout({

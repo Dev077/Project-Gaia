@@ -2,8 +2,9 @@ import MobileLayout from "@/components/MobileLayout";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Leaf, PlusCircle, MinusCircle } from "lucide-react";
 
-export default function AvatarPage() {
+export default function MirrorPage() {
   return (
     <MobileLayout>
       <div className="p-4 space-y-6">
@@ -11,24 +12,24 @@ export default function AvatarPage() {
           <Avatar className="h-32 w-32 border-4 border-primary shadow-lg mb-4">
             <AvatarImage src="/avatar-dog.jpg" alt="Avatar" />
             <AvatarFallback className="bg-primary/20 text-primary text-3xl">
-              AV
+              EC
             </AvatarFallback>
           </Avatar>
-          <h1 className="text-2xl font-bold text-center">Buddy</h1>
-          <p className="text-muted-foreground text-center">Level 7 Companion</p>
+          <h1 className="text-2xl font-bold text-center">EcoUser</h1>
+          <p className="text-muted-foreground text-center">Level 7 Eco Warrior</p>
         </div>
 
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center">
-              <span className="mr-2">Health</span>
-              <span className="text-primary ml-auto">85%</span>
+              <span className="mr-2">Weekly XP Target</span>
+              <span className="text-primary ml-auto">65%</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Progress value={85} className="h-3" />
+            <Progress value={65} className="h-3" />
             <p className="text-xs text-muted-foreground mt-2">
-              Daily walk completed - health improved!
+              650/1000 XP this week - keep up the good work!
             </p>
           </CardContent>
         </Card>
@@ -36,14 +37,16 @@ export default function AvatarPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center">
-              <span className="mr-2">Energy</span>
-              <span className="text-primary ml-auto">62%</span>
+              <Leaf className="h-4 w-4 mr-2 text-primary" />
+              <span className="mr-2">Carbon Saved</span>
+              <span className="text-primary ml-auto">278 kg</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Progress value={62} className="h-3" />
+            <Progress value={62} className="h-3 bg-primary/10" />
             <p className="text-xs text-muted-foreground mt-2">
-              Energy decreasing - time for a break!
+              <PlusCircle className="h-3 w-3 inline mr-1 text-primary" />
+              12.5 kg saved this week through green commuting
             </p>
           </CardContent>
         </Card>
@@ -51,14 +54,15 @@ export default function AvatarPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center">
-              <span className="mr-2">Happiness</span>
-              <span className="text-primary ml-auto">92%</span>
+              <MinusCircle className="h-4 w-4 mr-2 text-destructive" />
+              <span className="mr-2">Carbon Emitted</span>
+              <span className="text-destructive ml-auto">156 kg</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Progress value={92} className="h-3" />
+            <Progress value={32} className="h-3 bg-destructive/10 [&>div]:bg-destructive" />
             <p className="text-xs text-muted-foreground mt-2">
-              Play session boosted happiness!
+              Reduced emissions by 8% compared to last month
             </p>
           </CardContent>
         </Card>
