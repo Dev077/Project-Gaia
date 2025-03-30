@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PawTrack - Avatar Task Tracker",
-  description: "Track your avatar's health, tasks, and impact",
+  title: "Gaia",
+  description: "App to collect data and convert data into sustaniability insights",
 };
 
 export const viewport: Viewport = {

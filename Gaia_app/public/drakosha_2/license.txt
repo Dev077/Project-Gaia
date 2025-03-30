@@ -1,0 +1,11 @@
+Model Information:
+* title:	Drakosha 2
+* source:	https://sketchfab.com/3d-models/drakosha-2-12e8b91a9ad14802a2a4deb6c064ce8a
+* author:	sanya4694 (https://sketchfab.com/sanya4694)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Drakosha 2" (https://sketchfab.com/3d-models/drakosha-2-12e8b91a9ad14802a2a4deb6c064ce8a) by sanya4694 (https://sketchfab.com/sanya4694) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
