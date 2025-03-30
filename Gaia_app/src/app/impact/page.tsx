@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import MobileLayout from "@/components/MobileLayout";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-//import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"; //for orbit controls
 import GlobeLoading from "@/components/GlobeLoading";
 
 export default function ImpactPage() {
@@ -64,15 +63,11 @@ export default function ImpactPage() {
         // Auto-rotate the model
         const model = gltf.scene;
         
-        // Specifically position the model in the center of the screen
-        model.position.set(0, 0, 0);
+        // Position model in the center of the screen
+        model.position.set(-5.5, 0.5, 0);
         
         // Scale appropriately
-        model.scale.set(1.4, 1.4, 1.5);
-        
-        // Important: Manually shift the model to center it
-        // Moving it slightly to the left and down
-        model.translateX(-5.5);
+        model.scale.set(1.2, 1.2, 1.2);
         
         // Traverse to ensure materials/textures are properly applied
         model.traverse((node) => {
@@ -156,36 +151,61 @@ export default function ImpactPage() {
   return (
     <MobileLayout>
       <div className="relative h-full w-full">
+        {/* Full screen canvas with centered animation */}
         <canvas ref={canvasRef} className="absolute inset-0" />
-        
-        {/* Title overlay */}
-        <div className="absolute bottom-8 left-0 right-0 text-center pointer-events-none">
-          <h2 className="text-lg font-semibold text-white bg-black/30 inline-block px-4 py-2 rounded-full backdrop-blur-sm">
-            Global Environmental Impact
-          </h2>
-        </div>
         
         {/* Loading indicator */}
         {loading && <GlobeLoading />}
         
-        {/* Stats panels - only show when model is loaded */}
+        {/* Top Left - Atmospheric CO2 */}
         {!loading && (
-          <div className="absolute inset-x-0 top-4 px-4 pointer-events-none">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-card/80 backdrop-blur-sm p-3 rounded-lg shadow-lg">
-                <div className="text-xs text-muted-foreground mb-1">Global CO₂ Reduction</div>
-                <div className="text-lg font-bold text-primary">126.4M tons</div>
-              </div>
-              
-              <div className="bg-card/80 backdrop-blur-sm p-3 rounded-lg shadow-lg">
-                <div className="text-xs text-muted-foreground mb-1">Active Users</div>
-                <div className="text-lg font-bold text-primary">1.2M+</div>
-              </div>
+          <div className="absolute top-12 left-4 pointer-events-none">
+            <div className="bg-[#0D1B2A]/80 backdrop-blur-sm p-3 rounded-lg shadow-lg">
+              <div className="text-gray-300">Atmospheric CO₂</div>
+              <div className="text-2xl font-bold text-amber-500">420 ppm</div>
             </div>
           </div>
         )}
         
-
+        {/* Top Right - Deforestation Rate */}
+        {!loading && (
+          <div className="absolute top-12 right-4 pointer-events-none">
+            <div className="bg-[#0D1B2A]/80 backdrop-blur-sm p-3 rounded-lg shadow-lg">
+              <div className="text-gray-300">Deforestation Rate</div>
+              <div className="text-2xl font-bold text-red-500">100,000</div>
+              <div className="text-sm text-gray-400">km² per year</div>
+            </div>
+          </div>
+        )}
+        
+        {/* Bottom Left - Biodiversity Loss */}
+        {!loading && (
+          <div className="absolute bottom-24 left-4 pointer-events-none">
+            <div className="bg-[#0D1B2A]/80 backdrop-blur-sm p-3 rounded-lg shadow-lg">
+              <div className="text-gray-300">Biodiversity Loss</div>
+              <div className="text-2xl font-bold text-red-500">42,000</div>
+              <div className="text-sm text-gray-400">threatened species</div>
+            </div>
+          </div>
+        )}
+        
+        {/* Bottom Right - Future Generations */}
+        {!loading && (
+          <div className="absolute bottom-24 right-4 pointer-events-none">
+            <div className="bg-[#0D1B2A]/80 backdrop-blur-sm p-3 rounded-lg shadow-lg">
+              <div className="text-gray-300">Future Generations</div>
+              <div className="text-2xl font-bold text-amber-500">~4</div>
+              <div className="text-sm text-gray-400">at current trajectory</div>
+            </div>
+          </div>
+        )}
+        
+        {/* Title overlay */}
+        <div className="absolute bottom-8 left-0 right-0 text-center pointer-events-none">
+          <h2 className="text-lg font-semibold text-white bg-black/30 inline-block px-4 py-2 rounded-full backdrop-blur-sm">
+            Global Health
+          </h2>
+        </div>
       </div>
     </MobileLayout>
   );
