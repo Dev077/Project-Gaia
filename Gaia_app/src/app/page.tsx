@@ -31,6 +31,8 @@ export default function MirrorPage() {
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const MONTHLY_CARBON_TARGET = 20; 
+  const MONTHLY_PLASTIC_TARGET = 1;
   
   // Fetch user stats from backend
   useEffect(() => {
@@ -223,49 +225,38 @@ export default function MirrorPage() {
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center">
               <Leaf className="h-4 w-4 mr-2 text-primary" />
-              <span className="mr-2">Carbon Saved</span>
+              <span className="mr-2">Carbon Avoidance</span>
               <span className="text-primary ml-auto">{userStats?.carbonSaved || 0} kg</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Progress value={62} className="h-3 bg-primary/10" />
+          <Progress 
+            value={Math.min(((userStats?.carbonSaved || 0) / MONTHLY_CARBON_TARGET) * 100, 100)} 
+            className="h-3 bg-primary/10" 
+          />
             <p className="text-xs text-muted-foreground mt-2">
               <PlusCircle className="h-3 w-3 inline mr-1 text-primary" />
-              12.5 kg saved this week through green commuting
+              12.5 kg emission reduction this month through green commuting
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center">
-              <MinusCircle className="h-4 w-4 mr-2 text-destructive" />
-              <span className="mr-2">Carbon Emitted</span>
-              <span className="text-destructive ml-auto">{userStats?.carbonEmitted || 0} kg</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Progress value={32} className="h-3 bg-destructive/10 [&>div]:bg-destructive" />
-            <p className="text-xs text-muted-foreground mt-2">
-              Reduced emissions by 8% compared to last month
-            </p>
-          </CardContent>
-        </Card>
-
-        
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center">
               <Recycle className="h-4 w-4 mr-2 text-primary" />
-              <span className="mr-2">Plastic Saved</span>
+              <span className="mr-2">Material efficiency</span>
               <span className="text-primary ml-auto">{userStats?.plasticSaved || 0} kg</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Progress value={52} className="h-3 bg-primary/10" />
+          <Progress 
+            value={Math.min(((userStats?.plasticSaved || 0) / MONTHLY_PLASTIC_TARGET) * 100, 100)} 
+            className="h-3 bg-primary/10" 
+          />
             <p className="text-xs text-muted-foreground mt-2">
               <PlusCircle className="h-3 w-3 inline mr-1 text-primary" />
-              0.8 kg saved this week through reusable containers
+              0.8 kg of plasticavoided last Month through reusable containers
             </p>
           </CardContent>
         </Card>
