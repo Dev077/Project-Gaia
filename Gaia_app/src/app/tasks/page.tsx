@@ -1,60 +1,86 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MobileLayout from "@/components/MobileLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import api from "@/lib/api";
+
+// Task interface
+interface Task {
+  _id: string;
+  title: string;
+  description: string;
+  xp: number;
+  completed: boolean;
+  carbonSaved: number;
+  plasticSaved: number;
+  completedAt: string | null;
+}
 
 export default function TasksPage() {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Use Resuable Products",
-      description: "Use reusable bags, containers, and water bottles",
-      completed: false,
-      xp: 30, // saves ~50g plastic/day
-    },
-    {
-      id: 2,
-      title: "Compost Organic Waste",
-      description: "Compost food scraps to reduce landfill waste",
-      completed: false,
-      xp: 35, // saves ~.4kg CO2e/day 
-    },
-    {
-      id: 3,
-      title: "Save Energy at Home",
-      description: "Turn off electric based devices when not in use or not needed",
-      completed: false,
-      xp: 40, // saves ~0.3kg
-    },
-    {
-      id: 4,
-      title: "Commute sustainably",
-      description: "Walk, bike, or use public transport instead of driving alone",
-      completed: false,
-      xp: 45, // saves ~8.8 kg CO2e/day
-    },
-    {
-      id: 5,
-      title: "Eat plant-based meals",
-      description: "Have meals without meat or with less meat",
-      completed: false,
-      xp: 50, // saves ~6kg CO2e/day
-    },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch tasks on component mount
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await api.getTasks();
+        setTasks(response.data);
+      } catch (err) {
+        console.error('Error fetching tasks:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTasks();
+  }, []);
 
   // Calculate completion percentage
   const completedTasks = tasks.filter(task => task.completed).length;
-  const completionPercentage = (completedTasks / tasks.length) * 100;
+  const completionPercentage = (tasks.length > 0) 
+    ? (completedTasks / tasks.length) * 100 
+    : 0;
 
   // Toggle task completion
-  const toggleTask = (id: number) => {
-    setTasks(tasks.map(task =>
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
+  const toggleTask = async (id: string) => {
+    try {
+      const task = tasks.find(t => t._id === id);
+      if (!task) return;
+
+      // Send request to update task
+      const response = await api.updateTask(id, { completed: !task.completed });
+      
+      // Update local state with the updated task
+      setTasks(tasks.map(task => 
+        task._id === id ? response.data.task : task
+      ));
+
+      // Check if all tasks are completed to update streak
+      if (!task.completed && completedTasks + 1 === tasks.length) {
+        try {
+          await api.updateStreak();
+        } catch (err) {
+          console.error('Error updating streak:', err);
+        }
+      }
+    } catch (err) {
+      console.error('Error toggling task:', err);
+    }
   };
+
+  if (loading) {
+    return (
+      <MobileLayout>
+        <div className="p-4 flex justify-center items-center h-full">
+          <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
+        </div>
+      </MobileLayout>
+    );
+  }
 
   return (
     <MobileLayout>
@@ -83,18 +109,18 @@ export default function TasksPage() {
 
         <div className="space-y-3">
           {tasks.map(task => (
-            <Card key={task.id} className={task.completed ? "border-primary/50 bg-primary/5" : ""}>
+            <Card key={task._id} className={task.completed ? "border-primary/50 bg-primary/5" : ""}>
               <CardContent className="p-4">
                 <div className="flex items-start space-x-3">
                   <Checkbox
-                    id={`task-${task.id}`}
+                    id={`task-${task._id}`}
                     checked={task.completed}
-                    onCheckedChange={() => toggleTask(task.id)}
+                    onCheckedChange={() => toggleTask(task._id)}
                     className="mt-1"
                   />
                   <div className="flex-1">
                     <label
-                      htmlFor={`task-${task.id}`}
+                      htmlFor={`task-${task._id}`}
                       className={`text-base font-medium block ${task.completed ? "line-through text-muted-foreground" : ""}`}
                     >
                       {task.title}

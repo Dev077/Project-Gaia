@@ -7,40 +7,62 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Leaf, PlusCircle, MinusCircle, Recycle } from "lucide-react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import api from "@/lib/api";
+
+// User stats interface
+interface UserStats {
+  _id: string;
+  username: string;
+  level: number;
+  experience: number;
+  weeklyXP: number;
+  weeklyXPTarget: number;
+  weeklyXPPercentage: number;
+  carbonSaved: number;
+  carbonEmitted: number;
+  plasticSaved: number;
+  streak: number;
+  nextLevelXP: number;
+  xpToNextLevel: number;
+}
 
 export default function MirrorPage() {
-  const [totalCarbonEmitted, setTotalCarbonEmitted] = useState(156);
-  const [weeklyXp, setWeeklyXp] = useState(650);
-  const [carbonSaved, setCarbonSaved] = useState(278);
-  const [plasticSaved, setPlasticSaved] = useState(5.2);
+  // User stats state
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
-  // Load saved carbon emissions on component mount
+  // Fetch user stats from backend
   useEffect(() => {
-    const savedEmissions = localStorage.getItem('totalCarbonEmitted');
-    if (savedEmissions) {
+    const fetchUserStats = async () => {
       try {
-        const emissionsValue = parseFloat(savedEmissions);
-        setTotalCarbonEmitted(emissionsValue);
+        const response = await api.getUserStats();
+        setUserStats(response.data);
+        
+        // Store the stats in localStorage for offline access
+        localStorage.setItem('totalCarbonEmitted', response.data.carbonEmitted.toString());
+        localStorage.setItem('plasticSaved', response.data.plasticSaved.toString());
       } catch (err) {
-        console.error('Error parsing saved emissions:', err);
+        console.error('Error fetching user stats:', err);
+        
+        // Fallback to localStorage if API fails
+        const savedEmissions = localStorage.getItem('totalCarbonEmitted');
+        const savedPlastic = localStorage.getItem('plasticSaved');
+        
+        if (savedEmissions && savedPlastic) {
+          setUserStats(prev => ({
+            ...prev,
+            carbonEmitted: parseFloat(savedEmissions),
+            plasticSaved: parseFloat(savedPlastic)
+          } as UserStats));
+        }
+      } finally {
+        setLoading(false);
       }
-    }
+    };
 
-    // Load saved plastic weight
-    const savedPlastic = localStorage.getItem('plasticSaved');
-    if (savedPlastic) {
-      try {
-        const plasticValue = parseFloat(savedPlastic);
-        setPlasticSaved(plasticValue);
-      } catch (err) {
-        console.error('Error parsing saved plastic:', err);
-      }
-    }
+    fetchUserStats();
   }, []);
-
-  
 
   // 3D model setup and animation
   useEffect(() => {
@@ -177,20 +199,22 @@ export default function MirrorPage() {
             )}
           </div>
           <h1 className="text-2xl font-bold text-center">EcoUser</h1>
-          <p className="text-muted-foreground text-center">Level 7 Eco Warrior</p>
+          <p className="text-muted-foreground text-center">
+            Level {userStats?.level || 0} Eco Warrior
+          </p>
         </div>
 
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center">
               <span className="mr-2">Weekly XP Target</span>
-              <span className="text-primary ml-auto">65%</span>
+              <span className="text-primary ml-auto">{userStats?.weeklyXPPercentage || 0}%</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Progress value={65} className="h-3" />
+            <Progress value={userStats?.weeklyXPPercentage || 0} className="h-3" />
             <p className="text-xs text-muted-foreground mt-2">
-              650/1000 XP this week - keep up the good work!
+              {userStats?.weeklyXP || 0}/{userStats?.weeklyXPTarget || 1000} XP this week - keep up the good work!
             </p>
           </CardContent>
         </Card>
@@ -200,7 +224,7 @@ export default function MirrorPage() {
             <CardTitle className="text-lg flex items-center">
               <Leaf className="h-4 w-4 mr-2 text-primary" />
               <span className="mr-2">Carbon Saved</span>
-              <span className="text-primary ml-auto">278 kg</span>
+              <span className="text-primary ml-auto">{userStats?.carbonSaved || 0} kg</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -217,7 +241,7 @@ export default function MirrorPage() {
             <CardTitle className="text-lg flex items-center">
               <MinusCircle className="h-4 w-4 mr-2 text-destructive" />
               <span className="mr-2">Carbon Emitted</span>
-              <span className="text-destructive ml-auto">{totalCarbonEmitted} kg</span>
+              <span className="text-destructive ml-auto">{userStats?.carbonEmitted || 0} kg</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -234,7 +258,7 @@ export default function MirrorPage() {
             <CardTitle className="text-lg flex items-center">
               <Recycle className="h-4 w-4 mr-2 text-primary" />
               <span className="mr-2">Plastic Saved</span>
-              <span className="text-primary ml-auto">{plasticSaved} kg</span>
+              <span className="text-primary ml-auto">{userStats?.plasticSaved || 0} kg</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -252,9 +276,9 @@ export default function MirrorPage() {
               <CardTitle className="text-sm">Experience</CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0">
-              <div className="text-xl font-bold text-primary">1,250 XP</div>
+              <div className="text-xl font-bold text-primary">{userStats?.experience || 0} XP</div>
               <p className="text-xs text-muted-foreground">
-                250 XP to next level
+                {userStats?.xpToNextLevel || 0} XP to next level
               </p>
             </CardContent>
           </Card>
@@ -264,7 +288,7 @@ export default function MirrorPage() {
               <CardTitle className="text-sm">Streak</CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0">
-              <div className="text-xl font-bold text-primary">7 days</div>
+              <div className="text-xl font-bold text-primary">{userStats?.streak || 0} days</div>
               <p className="text-xs text-muted-foreground">
                 Keep it going!
               </p>

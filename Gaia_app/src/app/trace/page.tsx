@@ -1,15 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MobileLayout from "@/components/MobileLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Plane, Car, Truck, Zap, Droplet, AlertCircle } from "lucide-react";
+import api from "@/lib/api";
 
 interface CarbonResults {
+  carbon_g?: number;
+  carbon_lb?: number;
   carbon_kg: number;
+  carbon_mt?: number;
   distance_value?: number;
   distance_unit?: string;
   vehicle_make?: string;
@@ -25,11 +29,32 @@ interface CarbonResults {
   fuel_source_type?: string;
 }
 
+interface VehicleMake {
+  data: {
+    id: string;
+    attributes: {
+      name: string;
+    }
+  }
+}
+
+interface VehicleModel {
+  data: {
+    id: string;
+    attributes: {
+      name: string;
+      year: string | number;
+    }
+  }
+}
+
 export default function TracePage() {
   const [activeTab, setActiveTab] = useState("flight");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<CarbonResults | null>(null);
   const [error, setError] = useState("");
+  const [vehicleMakes, setVehicleMakes] = useState<VehicleMake[]>([]);
+  const [vehicleModels, setVehicleModels] = useState<VehicleModel[]>([]);
 
   // Form states
   const [flightData, setFlightData] = useState({
@@ -42,7 +67,8 @@ export default function TracePage() {
   const [vehicleData, setVehicleData] = useState({
     distance: 100,
     distanceUnit: "mi",
-    vehicleId: ""
+    vehicleId: "",
+    vehicleMakeId: ""
   });
 
   const [shippingData, setShippingData] = useState({
@@ -65,6 +91,38 @@ export default function TracePage() {
     value: 2,
     unit: "btu"
   });
+
+  // Fetch vehicle makes on component mount
+  useEffect(() => {
+    const fetchVehicleMakes = async () => {
+      try {
+        const response = await api.getVehicleMakes();
+        setVehicleMakes(response.data);
+      } catch (err) {
+        console.error('Error fetching vehicle makes:', err);
+      }
+    };
+
+    fetchVehicleMakes();
+  }, []);
+
+  // Fetch vehicle models when make is selected
+  useEffect(() => {
+    if (vehicleData.vehicleMakeId) {
+      const fetchVehicleModels = async () => {
+        try {
+          const response = await api.getVehicleModels(vehicleData.vehicleMakeId);
+          setVehicleModels(response.data);
+        } catch (err) {
+          console.error('Error fetching vehicle models:', err);
+        }
+      };
+
+      fetchVehicleModels();
+    } else {
+      setVehicleModels([]);
+    }
+  }, [vehicleData.vehicleMakeId]);
 
   const handleSubmit = async (type: "flight" | "vehicle" | "shipping" | "electricity" | "fuel") => {
     setLoading(true);
@@ -129,27 +187,19 @@ export default function TracePage() {
     }
     
     try {
-      const response = await fetch('/api/carbon-estimate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataToSend),
-      });
+      const response = await api.calculateCarbonEstimate(dataToSend);
+      setResults(response.data);
+    } catch (err: unknown) {
+      console.error('Error calculating carbon emissions:', err);
+      let errorMessage = 'Failed to calculate emissions';
       
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to calculate emissions');
+      // Type check before accessing properties
+      if (err && typeof err === 'object') {
+        const errorObj = err as any;
+        errorMessage = errorObj.response?.data?.message || errorMessage;
       }
       
-      setResults(data);
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message || 'An error occurred while calculating emissions');
-      } else {
-        setError('An error occurred while calculating emissions');
-      }
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -318,18 +368,38 @@ export default function TracePage() {
                     </select>
                   </div>
                 </div>
+                
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Vehicle Model ID</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. 7268a9b7-17e8-4c8d-acca-57059252afe9" 
+                  <label className="text-sm font-medium">Vehicle Make</label>
+                  <select 
+                    className="w-full p-2 border rounded-md bg-background"
+                    value={vehicleData.vehicleMakeId}
+                    onChange={(e) => setVehicleData({...vehicleData, vehicleMakeId: e.target.value, vehicleId: ""})}
+                  >
+                    <option value="">Select a make</option>
+                    {vehicleMakes.map((make) => (
+                      <option key={make.data.id} value={make.data.id}>
+                        {make.data.attributes.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Vehicle Model</label>
+                  <select 
                     className="w-full p-2 border rounded-md bg-background"
                     value={vehicleData.vehicleId}
                     onChange={(e) => setVehicleData({...vehicleData, vehicleId: e.target.value})}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Find vehicle ID using the Vehicle Makes and Models API endpoints
-                  </p>
+                    disabled={!vehicleData.vehicleMakeId}
+                  >
+                    <option value="">Select a model</option>
+                    {vehicleModels.map((model) => (
+                      <option key={model.data.id} value={model.data.id}>
+                        {model.data.attributes.name} ({model.data.attributes.year})
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 
                 <Button 
@@ -503,7 +573,7 @@ export default function TracePage() {
                   >
                     <option value="us">United States</option>
                     <option value="ca">Canada</option>
-                    <option value="uk">United Kingdom</option>
+                    <option value="gb">United Kingdom</option>
                     <option value="au">Australia</option>
                   </select>
                 </div>

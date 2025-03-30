@@ -4,10 +4,11 @@ const router = express.Router();
 const Task = require('../models/Task');
 const User = require('../models/User');
 
-// Get all tasks for a user
-router.get('/user/:userId', async (req, res) => {
+// Get all tasks
+router.get('/', async (req, res) => {
   try {
-    const tasks = await Task.find({ userId: req.params.userId });
+    // Default to getting all tasks (no user filter)
+    const tasks = await Task.find();
     res.json(tasks);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -24,7 +25,8 @@ router.patch('/:taskId', async (req, res) => {
       return res.status(404).json({ message: 'Task not found' });
     }
     
-    const user = await User.findById(task.userId);
+    // Get the user that owns the task
+    const user = await User.findOne();
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -88,28 +90,17 @@ router.patch('/:taskId', async (req, res) => {
   }
 });
 
-// Create a new task
-router.post('/', async (req, res) => {
-  try {
-    const task = new Task(req.body);
-    const savedTask = await task.save();
-    res.status(201).json(savedTask);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
 // Reset tasks for a new week
-router.post('/reset-weekly/:userId', async (req, res) => {
+router.post('/reset-weekly', async (req, res) => {
   try {
     // Reset all tasks to uncompleted
     await Task.updateMany(
-      { userId: req.params.userId },
+      {},
       { completed: false, completedAt: null }
     );
     
     // Reset user's weekly XP
-    await User.findByIdAndUpdate(req.params.userId, { weeklyXP: 0 });
+    await User.updateOne({}, { weeklyXP: 0 });
     
     res.json({ message: 'Weekly tasks reset successfully' });
   } catch (error) {
