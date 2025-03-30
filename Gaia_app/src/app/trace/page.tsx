@@ -163,8 +163,56 @@ export default function TracePage() {
     { value: "yt", label: "Yukon" }
   ];
 
+  const fuelTypes = [
+    { value: "bit", label: "Bituminous Coal" },
+    { value: "dfo", label: "Home Heating and Diesel Fuel (Distillate)" },
+    { value: "jf", label: "Jet Fuel" },
+    { value: "ker", label: "Kerosene" },
+    { value: "lig", label: "Lignite Coal" },
+    { value: "msw", label: "Municipal Solid Waste" },
+    { value: "ng", label: "Natural Gas" },
+    { value: "pc", label: "Petroleum Coke" },
+    { value: "pg", label: "Propane Gas" },
+    { value: "rfo", label: "Residual Fuel Oil" },
+    { value: "sub", label: "Subbituminous Coal" },
+    { value: "tdf", label: "Tire-Derived Fuel" },
+    { value: "wo", label: "Waste Oil" }
+  ];
+
+  // Helper function to get units based on fuel type
+  const getFuelUnits = (fuelType: string) => {
+    switch(fuelType) {
+      case 'bit':
+      case 'lig':
+      case 'msw':
+      case 'sub':
+      case 'tdf':
+        return [
+          { value: "short_ton", label: "Short Ton" },
+          { value: "btu", label: "BTU" }
+        ];
+      case 'ng':
+        return [
+          { value: "thousand_cubic_feet", label: "Thousand Cubic Feet" },
+          { value: "btu", label: "BTU" }
+        ];
+      case 'wo':
+        return [
+          { value: "barrel", label: "Barrel" },
+          { value: "btu", label: "BTU" }
+        ];
+      default:
+        return [
+          { value: "gallon", label: "Gallon" },
+          { value: "btu", label: "BTU" }
+        ];
+    }
+  };
+
+
 
 const [stateOptions, setStateOptions] = useState(usStates);
+const [fuelUnitOptions, setFuelUnitOptions] = useState(getFuelUnits('dfo'));
 
   // Fetch vehicle makes on component mount
   useEffect(() => {
@@ -213,6 +261,18 @@ const [stateOptions, setStateOptions] = useState(usStates);
       state: ""
     }));
   }, [electricityData.country]);
+
+  useEffect(() => {
+    setFuelUnitOptions(getFuelUnits(fuelData.type));
+    
+    // Reset unit to first available option when fuel type changes
+    if (getFuelUnits(fuelData.type).findIndex(u => u.value === fuelData.unit) === -1) {
+      setFuelData(prev => ({
+        ...prev,
+        unit: getFuelUnits(fuelData.type)[0].value
+      }));
+    }
+  }, [fuelData.type]);
 
   const handleSubmit = async (type: "flight" | "vehicle" | "shipping" | "electricity" | "fuel") => {
     setLoading(true);
@@ -725,41 +785,43 @@ const [stateOptions, setStateOptions] = useState(usStates);
                 <CardDescription>Calculate CO2 emissions from fuel usage</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Fuel Type</label>
-                  <select 
-                    className="w-full p-2 border rounded-md bg-background"
-                    value={fuelData.type}
-                    onChange={(e) => setFuelData({...fuelData, type: e.target.value})}
-                  >
-                    <option value="dfo">Diesel Fuel Oil</option>
-                    <option value="ng">Natural Gas</option>
-                    <option value="pg">Propane Gas</option>
-                    <option value="rfo">Residual Fuel Oil</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Amount</label>
-                  <div className="flex space-x-2">
-                    <input 
-                      type="number" 
-                      placeholder="2" 
-                      className="flex-1 p-2 border rounded-md bg-background"
-                      value={fuelData.value}
-                      onChange={(e) => setFuelData({...fuelData, value: parseFloat(e.target.value) || 0})}
-                    />
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Fuel Type</label>
                     <select 
-                      className="p-2 border rounded-md bg-background"
-                      value={fuelData.unit}
-                      onChange={(e) => setFuelData({...fuelData, unit: e.target.value})}
+                      className="w-full p-2 border rounded-md bg-background"
+                      value={fuelData.type}
+                      onChange={(e) => setFuelData({...fuelData, type: e.target.value})}
                     >
-                      <option value="btu">BTU</option>
-                      <option value="gallon">Gallon</option>
-                      <option value="liter">Liter</option>
-                      <option value="kg">Kilogram</option>
+                      {fuelTypes.map(type => (
+                        <option key={type.value} value={type.value}>
+                          {type.label}
+                        </option>
+                      ))}
                     </select>
                   </div>
-                </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Amount</label>
+                    <div className="flex space-x-2">
+                      <input 
+                        type="number" 
+                        placeholder="2" 
+                        className="flex-1 p-2 border rounded-md bg-background"
+                        value={fuelData.value}
+                        onChange={(e) => setFuelData({...fuelData, value: parseFloat(e.target.value) || 0})}
+                      />
+                      <select 
+                        className="p-2 border rounded-md bg-background"
+                        value={fuelData.unit}
+                        onChange={(e) => setFuelData({...fuelData, unit: e.target.value})}
+                      >
+                        {fuelUnitOptions.map(unit => (
+                          <option key={unit.value} value={unit.value}>
+                            {unit.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                 
                 <Button 
                   className="w-full" 
