@@ -5,7 +5,7 @@
 Gaia was built with that thought in mind, to showcase how small changes in our day-to-day life can compound into a positive difference for the environment and to enlighten individuals of the shadow effects that their actions create which causes harm to the environment.
 
 ## Design Process
-- The app is designed with gamification features and creative user-friendly interface to engage the users and prompt them to take actions. You can look at the design process for it at our [Notion Page](https://jagged-look-a81.notion.site/Project-Gaia-Green-Hacks-1c4e83d29f6180a2896fc94cc00444a5).
+- The app is designed with gamification features and creative user-friendly interface to engage the users and prompt them to take actions. You can look at our design process and the research behind Gaia, at our [Notion Page](https://jagged-look-a81.notion.site/Project-Gaia-Green-Hacks-1c4e83d29f6180a2896fc94cc00444a5).
 
 ## Features
 
