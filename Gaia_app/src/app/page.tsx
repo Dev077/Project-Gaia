@@ -226,12 +226,12 @@ export default function MirrorPage() {
             <CardTitle className="text-lg flex items-center">
               <Leaf className="h-4 w-4 mr-2 text-primary" />
               <span className="mr-2">Carbon Avoidance</span>
-              <span className="text-primary ml-auto">{userStats?.carbonSaved || 0} kg</span>
+              <span className="text-primary ml-auto">{Math.round(userStats?.carbonSaved || 0)} kg</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
           <Progress 
-            value={Math.min(((userStats?.carbonSaved || 0) / MONTHLY_CARBON_TARGET) * 100, 100)} 
+            value={(Math.min(((userStats?.carbonSaved || 0) / MONTHLY_CARBON_TARGET) * 100, 100))}
             className="h-3 bg-primary/10" 
           />
             <p className="text-xs text-muted-foreground mt-2">
