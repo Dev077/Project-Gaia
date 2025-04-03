@@ -1,4 +1,4 @@
-# Gaia
+# Gaia (Winner of IBM's prompt for GreenHax'25)
 
 > "How would your actions change if you knew what their consequences were?"
 
